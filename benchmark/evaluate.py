@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import pathlib
 from tensorflow import keras
 import sys
+from sklearn.metrics import mean_squared_error
+import seaborn as sns
 
 import warnings
 warnings.simplefilter(action='ignore', category=pd.errors.SettingWithCopyWarning)
@@ -35,6 +37,17 @@ user_ids = data['user_id']
 item_ids = data['item_id']
 user_ratings['prediction'] = model.rate(user_ids, item_ids)
 user_ratings['prediction_rounded'] = user_ratings['prediction'].round().astype(int)
-accuracy = (user_ratings['prediction_rounded'] == user_ratings['rating']).sum() / user_ratings.shape[0]
 
-print('Accuracy:', accuracy)
+accuracy = (user_ratings['prediction_rounded'] == user_ratings['rating']).sum() / user_ratings.shape[0]
+rmse = mean_squared_error(user_ratings['rating'].to_numpy(), user_ratings['prediction'], squared=False)
+
+print('Comparing model predictions with the original MovieLens user ratings:')
+print("\t- Accuracy (predictions are mathematically rounded):", accuracy)
+print("\t- RMSE loss:", rmse)
+
+
+# ! Uncomment this code to show Seaborn Confusion matrix, it is very informative and useful !
+
+# confusion_matrix = pd.crosstab(user_ratings['rating'], user_ratings['prediction_rounded'], rownames=['Actual'], colnames=['Predicted'])
+# sns.heatmap(confusion_matrix, annot=True, fmt='d', cmap='Blues')
+# plt.show()
